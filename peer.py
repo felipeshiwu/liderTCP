@@ -7,7 +7,7 @@ TCP_PORT = TCP_PORTS[peer_id]
 BUFFER_SIZE = 1024  # Normally 1024, but we want fast response
 MESSAGE = sys.argv[1]
 lider = 5
-lider_on = 0
+check_lider = 0
 
 def Listening(s):
     s.bind((TCP_IP, TCP_PORT))
@@ -21,7 +21,9 @@ def Listening(s):
             data = None
         if data:
             if int(data) < lider:
+                print lider
                 lider = int(data)
+                print lider
         else:
             data = conn.recv(BUFFER_SIZE)
             if not data: continue
@@ -29,15 +31,8 @@ def Listening(s):
 
     conn.close()
 
-def check_lider(lider_on):
-    if lider_on == 0:
-        return 0
-    else:
-        return 1
 
 def choose_lider():
-    global lider
-    lider = 5
     for i in TCP_PORTS:
         try:
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -57,6 +52,10 @@ peer.start()
 while(True):
 
     time.sleep(2)
+    if not check_lider:
+        lider = 5
+        choose_lider()
+        check_lider = 1
     for i in range(0,4):
         if i != peer_id:
             try:
@@ -66,9 +65,6 @@ while(True):
                 so.close()
             except:
                 if i == lider:
-                    print 'lider dead'
+                    lider = 5
                     choose_lider()
-    if not check_lider(lider_on):
-        choose_lider()
-        lider_on = 1
     print lider
