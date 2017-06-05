@@ -1,8 +1,8 @@
 import socket, threading, time, sys
 
 peer_id = int(sys.argv[1])
-TCP_IP = '127.0.0.1'
-TCP_PORT = int(sys.argv[2])
+TCP_IP = sys.argv[2]
+TCP_PORT = 5000
 BUFFER_SIZE = 1024  # Normally 1024, but we want fast response
 MESSAGE = sys.argv[1]
 check_lider = 0
@@ -32,10 +32,10 @@ def Listening(s):
 
 
 def choose_lider():
-    for i in TCP_PORTS:
+    for i in TCP_IPS:
         try:
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            so.connect((TCP_IP, i))
+            so.connect((i, TCP_PORT))
             so.send(MESSAGE, socket.MSG_OOB)
             so.close()
         except:
@@ -58,14 +58,14 @@ def procurar_desconectado(cont):
     
 
 #=======================================================
-TCP_PORTS = []
+TCP_IPS = []
 vivos = []
 hearthbeats = {}
 n = raw_input()
 for i in range(0,int(n)):
     port = raw_input()
     ide = raw_input()
-    TCP_PORTS.append(int(port))
+    TCP_IPS.append(port)
     hearthbeats[ide] = 0
     vivos.append(ide)
     
@@ -84,11 +84,11 @@ while(True):
         print "escolhendo lider"
         choose_lider()
         check_lider = 1
-    for i in TCP_PORTS:
-        if i != TCP_PORT or not check_lider:
+    for i in TCP_IPS:
+        if i != TCP_IP or not check_lider:
             try:
                 so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                so.connect((TCP_IP, i))
+                so.connect((i, TCP_PORT))
                 so.send(MESSAGE)
                 so.close()
             except:
@@ -97,6 +97,6 @@ while(True):
                 #    lider = 5
                  #   choose_lider()
     cont+=1
-    if check_lider:
-        procurar_desconectado(cont)
+   #if check_lider:
+    #    procurar_desconectado(cont)
     print lider
