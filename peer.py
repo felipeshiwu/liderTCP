@@ -9,7 +9,7 @@ check_lider = 0
 lider = 100
 
 def Listening(s):
-    global hearthbeats
+    global heartbeats
     s.bind((TCP_IP, TCP_PORT))
     global lider
     while 1:
@@ -20,18 +20,21 @@ def Listening(s):
         except socket.error, value:
             data = None
         if data:
-            if int(data) < lider:
-                lider = int(data)
+            print 'Novo lider' 
         else:
             data = conn.recv(BUFFER_SIZE)
-            hearthbeats[data] += 1
             if not data: continue
-           # print "received data:", data
+            heartbeats[data] = time.time()
+            #print "received data:", heartbeats
 
     conn.close()
 
 
 def choose_lider():
+    global vivos
+    global lider
+    lider = vivos[0]
+    t_out.paused = True
     for i in TCP_PORTS:
         try:
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,43 +43,64 @@ def choose_lider():
             so.close()
         except:
             pass
+    t_out.paused = False
 
 def sincroniza():
-    for i in hearthbeats:
-        if hearthbeats[i] == 0:
+    for i in heartbeats:
+        if heartbeats[i] == 0:
             return False
     return True
-    
-def procurar_desconectado(cont):
-    for i in vivos:
-        if int(i) != peer_id:
-            if hearthbeats[i] != cont:
-                lider = 100
-                print "precisamos de um novo lider"
-                choose_lider()
-                vivos.remove(i)
-    
+
+def time_out():
+    global heartbeats
+    global lider
+    global vivos
+    TIMEOUT = 5
+    while 1:
+        time.sleep(2)
+        for h in vivos:
+            if peer_id != int(h):
+                if (time.time() - heartbeats[h]) > TIMEOUT:
+                    if heartbeats[h]:
+                        if h == lider:
+                            print 'elegendo novo lider'
+                            vivos.remove(h)
+                            choose_lider()
+                        else:
+                            vivos.remove(h)
+
 
 #=======================================================
 TCP_PORTS = []
 vivos = []
-hearthbeats = {}
-n = raw_input()
-for i in range(0,int(n)):
-    port = raw_input()
-    ide = raw_input()
-    TCP_PORTS.append(int(port))
-    hearthbeats[ide] = 0
-    vivos.append(ide)
-    
+heartbeats = {}
+#n = raw_input()
+#for i in range(0,int(n)):
+#    port = raw_input()
+#    ide = raw_input()
+#    TCP_PORTS.append(int(port))
+#    heartbeats[ide] = 0
+#    vivos.append(ide)
+#
+with open('entrada','r') as file:
+    line = file.readline().split()
+    n_peers = line[0]
+    for line in file:
+        ips = line.split()
+        heartbeats[ips[0]] = 0
+        TCP_PORTS.append(int(ips[1]))
+        vivos.append(ips[0])
+
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 peer = threading.Thread(target=Listening, args=(s,))
+t_out = threading.Thread(target=time_out)
 peer.daemon = True
+t_out.daemon = True
 peer.start()
+t_out.start()
 
-cont = 0
 while(True):
 
     time.sleep(2)
@@ -96,7 +120,8 @@ while(True):
                # if i == lider:
                 #    lider = 5
                  #   choose_lider()
-    cont+=1
-    if check_lider:
-        procurar_desconectado(cont)
+    #if check_lider:
+    #    procurar_desconectado(cont)
     print lider
+
+s.close()
