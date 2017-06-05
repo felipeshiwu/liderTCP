@@ -1,17 +1,16 @@
 import socket, threading, time, sys
 
-peer_id = int(sys.argv[1])
-TCP_IP = '127.0.0.1'
-TCP_PORT = int(sys.argv[2])
 BUFFER_SIZE = 1024  # Normally 1024, but we want fast response
 MESSAGE = sys.argv[1]
 check_lider = 0
 lider = 100
+TCP_PORT = None
 
 def Listening(s):
     global hearthbeats
-    s.bind((TCP_IP, TCP_PORT))
     global lider
+    last = time.time()
+    s.bind((socket.gethostbyname(socket.gethostname()), TCP_PORT))
     while 1:
         s.listen(1)
         conn, addr = s.accept()
@@ -24,18 +23,32 @@ def Listening(s):
                 lider = int(data)
         else:
             data = conn.recv(BUFFER_SIZE)
-            hearthbeats[data] += 1
+            
             if not data: continue
-           # print "received data:", data
+            hearthbeats[data] += 1
+            last = time.time()
+            print "received data:", data
+        print last
+        if (time.time() - last > 5):
+            print "entrei"
+            for vivo in vivos:
+                if(hearthbeats[vivo] == addr[0]):
+                    if(hearthbeats[str(lider)] == addr[0]):
+                        vivos.remove(vivo)
+                        lider = 100
+                        choose_lider()
+                    else:
+                        vivos.remove(vivo)
+
 
     conn.close()
 
 
 def choose_lider():
-    for i in TCP_PORTS:
+    for i in IPS:
         try:
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            so.connect((TCP_IP, i))
+            so.connect((i, TCP_PORT))
             so.send(MESSAGE, socket.MSG_OOB)
             so.close()
         except:
@@ -57,18 +70,28 @@ def procurar_desconectado(cont):
                 vivos.remove(i)
     
 
+# def server():
+#     global IP
+#     global TCP_PORT
+#     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#     s.bind((socket.gethostbyname(socket.gethostname()), 5000))
+#     s.listen(1)
+#     while True:
+#         conn, addr = s.accept()
+#         peers = threading.Thread(target=Listening, args=(conn, addr))
+#         peers.daemon = True
+#         peers.start()
+#     conn.close
+
+
+
+
 #=======================================================
-TCP_PORTS = []
+IPS = []
 vivos = []
 hearthbeats = {}
-n = raw_input()
-for i in range(0,int(n)):
-    port = raw_input()
-    ide = raw_input()
-    TCP_PORTS.append(int(port))
-    hearthbeats[ide] = 0
-    vivos.append(ide)
-    
+
+global IP   
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -76,7 +99,25 @@ peer = threading.Thread(target=Listening, args=(s,))
 peer.daemon = True
 peer.start()
 
-cont = 0
+IP = socket.gethostbyname(socket.gethostname())
+
+
+with open('entrada.txt','r') as file:
+    line = file.readline().split()
+    n_peers = line[0]
+    TCP_PORT = int(line[1])
+    for line in file:
+        ips = line.split()
+        hearthbeats[ips[0]] = 0
+        IPS.append(ips[1])
+        vivos.append(ips[0])
+
+
+print hearthbeats
+print IPS
+print vivos
+
+
 while(True):
 
     time.sleep(2)
@@ -84,11 +125,11 @@ while(True):
         print "escolhendo lider"
         choose_lider()
         check_lider = 1
-    for i in TCP_PORTS:
-        if i != TCP_PORT or not check_lider:
+    for i in IPS:
+        if i != IP or not check_lider:
             try:
                 so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                so.connect((TCP_IP, i))
+                so.connect((i, TCP_PORT))
                 so.send(MESSAGE)
                 so.close()
             except:
@@ -96,7 +137,7 @@ while(True):
                # if i == lider:
                 #    lider = 5
                  #   choose_lider()
-    cont+=1
-    if check_lider:
-        procurar_desconectado(cont)
+
+    #if check_lider:
+     #   procurar_desconectado(cont)
     print lider
