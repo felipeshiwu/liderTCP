@@ -1,39 +1,66 @@
 import socket, threading, time, sys
 
-peer_id = int(sys.argv[1])
-TCP_IP = sys.argv[2] 
-TCP_PORT = 5036
-BUFFER_SIZE = 1024  # Normally 1024, but we want fast response
-MESSAGE = sys.argv[1]
-check_lider = 0
-lider = 100
+def read_file():
+	global TCP_IP
+	with open('entrada','r') as file:
+	    line = file.readline().split()
+	    n_peers = line[0]
+	    for line in file:
+	        ips = line.split()
+	        heartbeats[ips[0]] = 0
+	        IPs.append(ips[1])
+	        peersOnline.append(ips[0])
+	TCP_IP = IPs[PEER_ID]
 
-def Listening(s):
-    global heartbeats
-    s.bind((TCP_IP, TCP_PORT))
-    global lider
-    while 1:
-        s.listen(1)
-        conn, addr = s.accept()
-        try:
-            data = conn.recv(BUFFER_SIZE, socket.MSG_OOB)
-        except socket.error, value:
-            data = None
-        if data:
-            print 'Novo lider' 
-        else:
-            data = conn.recv(BUFFER_SIZE)
-            if not data: continue
-            heartbeats[data] = time.time()
-            #print "received data:", heartbeats
+def sender():
+	check_lider = 0
+	while(True):
 
-    conn.close()
+	    time.sleep(2)
+	    if not check_lider and sincroniza():
+	        print "escolhendo lider"
+	        choose_lider()
+	        check_lider = 1
+	    for i in IPs:
+	        if i != TCP_IP or not check_lider:
+	            try:
+	                so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	                so.connect((i, TCP_PORT))
+	                so.send(MESSAGE)
+	                so.close()
+	            except:
+	                pass
+	    print lider
 
+	s.close()
+
+
+def listening(sock):
+	global TCP_IP
+	global heartbeats
+	sock.bind((TCP_IP, TCP_PORT))
+	global lider
+	while 1:
+		sock.listen(1)
+		conn, addr = sock.accept()
+		try:
+			data = conn.recv(BUFFER_SIZE, socket.MSG_OOB)
+		except socket.error, value:
+			data = None
+		if data:
+			print 'Novo lider' 
+		else:
+			data = conn.recv(BUFFER_SIZE)
+			if not data: continue
+			heartbeats[data] = time.time()
+			#print "received data:", heartbeats
+
+	conn.close()
 
 def choose_lider():
-    global vivos
+    global peersOnline
     global lider
-    lider = vivos[0]
+    lider = peersOnline[0]
     t_out.paused = True
     for i in IPs:
         try:
@@ -54,74 +81,42 @@ def sincroniza():
 def time_out():
     global heartbeats
     global lider
-    global vivos
+    global peersOnline
     TIMEOUT = 5
     while 1:
         time.sleep(2)
-        for h in vivos:
-            if peer_id != int(h):
+        for h in peersOnline:
+            if PEER_ID != int(h):
                 if (time.time() - heartbeats[h]) > TIMEOUT:
                     if heartbeats[h]:
                         if h == lider:
                             print 'elegendo novo lider'
-                            vivos.remove(h)
+                            peersOnline.remove(h)
                             choose_lider()
                         else:
-                            vivos.remove(h)
+                            peersOnline.remove(h)
 
 
 #=======================================================
+PEER_ID = int(sys.argv[1])
+TCP_PORT = int(sys.argv[2])
+BUFFER_SIZE = 1024 
+MESSAGE = sys.argv[1]
+lider = None
 IPs = []
-vivos = []
+peersOnline = []
 heartbeats = {}
-#n = raw_input()
-#for i in range(0,int(n)):
-#    port = raw_input()
-#    ide = raw_input()
-#    TCP_PORTS.append(int(port))
-#    heartbeats[ide] = 0
-#    vivos.append(ide)
-#
-with open('entrada','r') as file:
-    line = file.readline().split()
-    n_peers = line[0]
-    for line in file:
-        ips = line.split()
-        heartbeats[ips[0]] = 0
-        IPs.append(ips[1])
-        vivos.append(ips[0])
 
+read_file()
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-peer = threading.Thread(target=Listening, args=(s,))
-t_out = threading.Thread(target=time_out)
+peer = threading.Thread(target=listening, args=(sock,))
 peer.daemon = True
-t_out.daemon = True
 peer.start()
+
+t_out = threading.Thread(target=time_out)
+t_out.daemon = True
 t_out.start()
 
-while(True):
-
-    time.sleep(2)
-    if not check_lider and sincroniza():
-        print "escolhendo lider"
-        choose_lider()
-        check_lider = 1
-    for i in IPs:
-        if i != TCP_IP or not check_lider:
-            try:
-                so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                so.connect((i, TCP_PORT))
-                so.send(MESSAGE)
-                so.close()
-            except:
-                pass
-               # if i == lider:
-                #    lider = 5
-                 #   choose_lider()
-    #if check_lider:
-    #    procurar_desconectado(cont)
-    print lider
-
-s.close()
+sender()
