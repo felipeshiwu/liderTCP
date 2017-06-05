@@ -1,0 +1,40 @@
+#######################################################################
+ Programa iniciado em - Mon Jun  5 19:39:15 2017
+
+ DEFINIDO - frequencia dos heartbeats eh 2 segundos
+
+ DEFINIDO - Timeout eh 5 segundos
+
+-Lendo o arquivo 'entrada' para obter os IPs e IDs de todas as maquinas
+ As informacoes sao:
+	-Numero de peers: 2
+	-IP: 192.168.0.7 com ID: 0
+	-IP: 192.168.0.8 com ID: 1
+
+ Estamos na maquina com IP: 192.168.0.7
+
+-Abri o socket
+
+-Peer comecou a ouvir
+
+-Esperando as outras maquinas conectarem
+
+-Nao existe um lider ainda
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8
+
+-TODOS CONECTARAM
+
+-ID dos peers online: ['0', '1']
+
+-Escolhendo o primeiro lider
+
+-Preciso avisar os outros que mudou o lider. URGENTE!
+	 Enviando mensagens urgentes
+
+-Eu sou o novo lider, com ID 0
+
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8
