@@ -1,8 +1,8 @@
 import socket, threading, time, sys
 
 peer_id = int(sys.argv[1])
-TCP_IP = '127.0.0.1'
-TCP_PORT = int(sys.argv[2])
+TCP_IP = sys.argv[2] 
+TCP_PORT = 5036
 BUFFER_SIZE = 1024  # Normally 1024, but we want fast response
 MESSAGE = sys.argv[1]
 check_lider = 0
@@ -35,10 +35,10 @@ def choose_lider():
     global lider
     lider = vivos[0]
     t_out.paused = True
-    for i in TCP_PORTS:
+    for i in IPs:
         try:
             so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            so.connect((TCP_IP, i))
+            so.connect((i, TCP_PORT))
             so.send(MESSAGE, socket.MSG_OOB)
             so.close()
         except:
@@ -71,7 +71,7 @@ def time_out():
 
 
 #=======================================================
-TCP_PORTS = []
+IPs = []
 vivos = []
 heartbeats = {}
 #n = raw_input()
@@ -88,7 +88,7 @@ with open('entrada','r') as file:
     for line in file:
         ips = line.split()
         heartbeats[ips[0]] = 0
-        TCP_PORTS.append(int(ips[1]))
+        IPs.append(ips[1])
         vivos.append(ips[0])
 
 
@@ -108,11 +108,11 @@ while(True):
         print "escolhendo lider"
         choose_lider()
         check_lider = 1
-    for i in TCP_PORTS:
-        if i != TCP_PORT or not check_lider:
+    for i in IPs:
+        if i != TCP_IP or not check_lider:
             try:
                 so = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                so.connect((TCP_IP, i))
+                so.connect((i, TCP_PORT))
                 so.send(MESSAGE)
                 so.close()
             except:
