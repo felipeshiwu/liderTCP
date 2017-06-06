@@ -2,41 +2,72 @@
 	<HEAD>
 		<meta charset="utf-8"/>
 		<TITLE>Trabalho Prático - Redes II</TITLE>
+		<style>
+			body{margin-left:5%;margin-right:5%;}
+			.div-em-colunas {
+			    -webkit-column-count:2; /* Chrome, Safari, Opera */
+				-moz-column-count:2;    /* Firefox */
+				column-count:2;         /* padrão */
+			}
+		</style>
 	</HEAD>
 
 <BODY >
 
 <P>
 <DIV ALIGN="CENTER">
-<B>Universidade Federal do Paraná 
+<B>Universidade Federal do Paraná
 <BR>
-Departamento de Informática 
+Departamento de Informática
 <BR>
-Bacharelado em Ciência da Computação 
+Bacharelado em Ciência da Computação
 <BR>
 Alunos Felipe Shi Iu Wu e Felipe Lopes Pereira</B>
 </DIV>
 
 <P>
-<DIV ALIGN="CENTER"><FONT SIZE="3"><B>Trabalho Prático de Redes de Computadores II - Turma 2017/1</B></FONT></DIV>
+<DIV ALIGN="CENTER"><FONT SIZE="3"><B>Relatório do Trabalho Prático de Redes de Computadores
+II - Turma 2017/1</B></FONT></DIV>
 
 <P>
-<DIV ALIGN="CENTER"><FONT SIZE="3"><B>Eleição de Líder entre Peers TCP</em></B></FONT></DIV>
+<DIV ALIGN="CENTER"><FONT SIZE="3"><B>Eleição de Líder entre Peers TCP</em></B>
+</FONT></DIV>
 
+<HR>
+<CENTER>
+<P>
+<font face="futura" size=3 color=blue>
+<a HREF="log.txt">Log</a>
+&nbsp
+&nbsp
+<a HREF="peer.py.txt">Código</A>
+&nbsp
+&nbsp
+<a HREF="entrada">Entrada</A>
+</font>
+</CENTER>
+<HR>
 
 <h2>Relatório</h2>
 <p>
-Para esse trabalho, decidimos a utilização da linguagem Python. Escolhida para facilitar o uso de
-<EM>threads</EM>, orientações objeto e entre outras ferramentas.
+Para esse trabalho, decidimos a utilização da linguagem Python. Escolhida para
+facilitar o uso de
+<EM>threads</EM>, orientações objeto e entre outras ferramentas. No começo,
+fizemos a implementação em uma só máquina, para isso, usamos o <em>localhost</em>
+e portas diferentes, depois de tudo certo, fizemos para máquinas de IPs diferentes.
 <p>
 
 <h4>Requisitos do sistema</h4>
 <p>
-Em primeiro momento é necessário que seja criado o arquivo 'entrada' no mesmo diretório que o código e contendo as informações necessárias para que o sistema possa realizar as devidas conexões. Como a leitura do arquivo é feita linha por linha, as informações precisam estar com a seguinte estrutura:
+Em primeiro momento é necessário que seja criado o arquivo 'entrada' no mesmo
+diretório que o código e contendo as informações necessárias para que o sistema
+possa realizar as devidas conexões. Como a leitura do arquivo é feita linha por
+linha, as informações precisam estar com a seguinte estrutura:
 <p>
 
 <p>1ª linha, contém o número de <EM>peers</EM>.<br>
-2ª linha em diante contém o ID seguido do IP das máquinas, sempre uma máquina por linha.<p>
+2ª linha em diante contém o ID seguido do IP das máquinas, sempre uma máquina
+por linha.<p>
 Exempo: <br>
 4<br>
 0 192.168.0.6<br>
@@ -44,114 +75,207 @@ Exempo: <br>
 2 192.168.0.8<br>
 3 192.168.0.9<br>
 <p>
-<b>*</b>É importante lembrar que a relação dos IDs com os IPs deve ser respeitado durante todo o processo e deve ser utilizado o mesmo arquivo 'entrada' para todas as máquinas.
+<b>*</b>É importante lembrar que a relação dos IDs com os IPs deve ser
+respeitado durante todo o processo e deve ser utilizado o mesmo arquivo
+'entrada' para todas as máquinas.
 <p>
 
 <h4>Inicialização do sistema</h4>
 
-Feito isso podemos executar o programa, para isso, basta executar o programa <EM>python</EM> com os primeiro argumento sendo o seu próprio ID e o segundo argumento a porta que será feita a conexão. Exemplo: <EM>python peer.py 0 5621</EM>
+Feito isso podemos executar o programa, para isso, basta executar o programa
+<EM>python</EM> com os primeiro argumento sendo o seu próprio ID e o segundo
+argumento a porta que será feita a conexão. Exemplo:
+<EM>python peer.py 0 5621</EM>
 
 <p>
-Então, o programa pega as informações retiradas do arquivo 'entrada' e armazenado em uma lista chamado <em>IPs</em>, esta lista oferece as informações que serão utilizadas para enviar mensagens e identificar os IPs das máquinas baseado nos IDs, até mesmo o seu próprio ID é obtido desta forma. Durante a leitura, o dicionário <EM>heartbeats</EM>, que tem como chave os IDs, é iniciado com zero e adicionamos os IDs na lista de máquinas <EM>onlines</EM>. É criado também uma <EM>thread</EM> para que o <em>peer</em> fique escutando se tem mensagens chegando junto com uma <EM>thread</EM> para verificar TIMEOUTS, mas só terá início quando todos estiverem conectados. Aqui ele permanece esperando até que todas as outras máquinas se conectem.
+Então, o programa pega as informações retiradas do arquivo 'entrada' e
+armazenado em uma lista chamado <em>IPs</em>, esta lista oferece as informações
+que serão utilizadas para enviar mensagens e identificar os IPs das máquinas
+baseado nos IDs, até mesmo o seu próprio ID é obtido desta forma. Durante a
+leitura, o dicionário <EM>heartbeats</EM>, que tem como chave os IDs, é
+iniciado com zero e adicionamos os IDs na lista de máquinas <EM>onlines</EM>.
+É criado também uma <EM>thread</EM> para que o <em>peer</em> fique escutando se
+tem mensagens chegando junto com uma <EM>thread</EM> para verificar TIMEOUTS,
+mas só terá início quando todos estiverem conectados. Aqui ele permanece
+esperando até que todas as outras máquinas se conectem.
 <p>
-Até aqui, algumas decisões importante foram tomadas, uma delas é que o dicionário <EM>heartbeats</EM> irá armazenar o tempo que ele recebeu a mensagem, já pensando em posteriormente utilizar o TIMEOUT para encontrar as máquinas que desconectaram. Junto com isso, a forma para saber que todas as máquinas estão conectadas, é verificando que todos os <EM>heartbeats</EM> estão diferentes de 0 (zero). Também foi criado uma lista com as máquinas que é inicialmente preenchido com todos os IDs no arquivo 'entrada', talvez seja um pouco precipitado colocar todas as máquinas como <EM>online</EM> antes delas estarem realmente conectadas, mas como é necessário que todas as máquinas estejam conectadas para começar todo o processo de eleger o líder e realmente funcionar, não afeta o funcionamento de modo algum.<br>
-Já as mensagens, decidimos que seria simplesmente o seu próprio ID, pois é fácil de tratar e podemos facilmente encontrar o seu IP pela lista <em>IPs</em>, tivemos essa inspiração do <em>heartbeats</em>, pois é sugestivo entender que é apenas uma mensagem para saber que está vivo e naturalmente saber quem está vivo.
+Até aqui, algumas decisões importante foram tomadas, uma delas é que o
+dicionário <EM>heartbeats</EM> irá armazenar o tempo que ele recebeu a mensagem,
+já pensando em posteriormente utilizar o TIMEOUT para encontrar as máquinas que
+desconectaram. Junto com isso, a forma para saber que todas as máquinas estão
+conectadas, é verificando que todos os <EM>heartbeats</EM> estão diferentes de 0
+(zero). Também foi criado uma lista com as máquinas que é inicialmente
+preenchido com todos os IDs no arquivo 'entrada', talvez seja um pouco
+precipitado colocar todas as máquinas como <EM>online</EM> antes delas estarem
+realmente conectadas, mas como é necessário que todas as máquinas estejam
+conectadas para começar todo o processo de eleger o líder e realmente funcionar,
+não afeta o funcionamento de modo algum.<br>
+Já as mensagens, decidimos que seria simplesmente o seu próprio ID, pois é fácil
+de tratar e podemos facilmente encontrar o seu IP pela lista <em>IPs</em>,
+tivemos essa inspiração do <em>heartbeats</em>, pois é sugestivo entender que é
+apenas uma mensagem para saber que está vivo e naturalmente saber quem está vivo.
 
 <h4>Execução do sistema</h4>
 
 <p>
-O envio das mensagens é baseado nos IDs que estão na lista de máquinas <em>onlines</em> e definimos como frequência 2s. Após todas as máquinas se conectarem, o dicionário de <EM>heartbeats</EM> é completado com o tempo que recebeu as mensagens e é feita a primeira eleição. O resultado da eleição é o menor ID na lista de máquinas <EM>onlines</EM>. A lista de máquinas <em>onlines</em> é alterada quando o TIMEOUT verificar que o tempo desde que uma determinada máquina mandou mensagem para ele ultrapassou um tempo que definimos como 5s, consequentemente, o ID daquela máquina é retirado da lista e se o ID foi do líder, é feito uma nova eleição. Nesse momento entra em ação as mensagens urgentes, que usamos a flag MSG_OOB, elas avisam para outras que é necessário uma atualização de líder.
+O envio das mensagens é baseado nos IDs que estão na lista de máquinas
+<em>onlines</em> e definimos como frequência 2s. Após todas as máquinas se
+conectarem, o dicionário de <EM>heartbeats</EM> é completado com o tempo que
+recebeu as mensagens e é feita a primeira eleição. O resultado da eleição é o
+menor ID na lista de máquinas <EM>onlines</EM>. A lista de máquinas
+<em>onlines</em> é alterada quando o TIMEOUT verificar que o tempo desde que uma
+determinada máquina mandou mensagem para ele ultrapassou um tempo que definimos
+como 5s, consequentemente, o ID daquela máquina é retirado da lista e se o ID
+foi do líder, é feito uma nova eleição. Nesse momento entra em ação as mensagens
+urgentes, que usamos a flag MSG_OOB, elas avisam para outras que é necessário
+uma atualização de líder.
 
 <p>
-
-
-
+O fluxo é basicamente o seguinte:
 <OL>
-<LI> Você vai implementar um sistema de N peers TCP que se monitoram e
-elegem um líder entre eles. Os peers estabelecem conexão entre eles --
-o sistema deve ser executado com no mínimo N=3, idealmente N=4 peers.
-Cada peer tem um identificador no sistema, que inicia em 0 e vai até N-1.
+<LI> O <em>peer</em> manda seu ID para todas as máquinas da lista de máquinas
+<em>onlines</em>
 
-<LI> De tempos em tempos cada peer envia uma mensagem aos demais,
-informando que está executando corretamente. Esta mensagem é chamada
-de <em>heartbeat</em>.  <b>O líder é o peer correto com o menor
-identificador</b>. Por exemplo, em um sistema com N=4 peers, se todos os peers
-com id=0, 1, 2 e 3 estão corretos, o líder é o processo 0. Se o peer 0
-falha, o líder então é o processo 1, e assim por diante.
+<LI> Quando o <em>heartbeat</em> é recebido, registramos seu tempo de chegada no
+dicionário <em>heartbeats</em> referente ao ID do remetente.
 
-<LI> A falha de um peer deve ser causada simplesmente
-matando o processo correspondente. A falha deve ser detectada pelo
-encerramento da conexão TCP correspondente. Observe que após detectar que a conexão
-caiu, o peer não manda mais <em>heartbeats</em>.
+<LI> Em paralelo, a cada 2s os <em>peers</em> mandam seu <em>heartbeat</em>.
 
-<LI> Quando um peer detecta que houve a <b>troca de líder</b> manda uma
-mensagem TCP urgente para os demais peers. Cada peer mantém e informa
-o id do líder ao usuário.
+<LI> Também em paralelo, o TIMEOUT chega sempre se o tempo desde a última conexão
+ultrapassou 5s. Se sim, verifica se é o líder, caso tenha perdido a conexão com
+o líder mandamos uma mensagem urgente e elegemos um novo líder, se não for o líder,
+apenas tiramos da lista de máquinas <em>online</em>.
 
-<LI> Atenção: a eleição só inicia após um peer detectar que todos os
-demais estão corretos e receberem mensagens de heartbeats de todos os
-peers. Em outras palavras: o resultado da primeira eleição resulta no
-peer 0 como líder.
-
-<LI> Prepare um arquivo de log para cada execução, concatenando os logs gerados por 
-cada peer individual.
 </OL>
 
 <P>
-Cada dupla pode fazer a implementação na linguagem que escolher, o professor
-sugere Python pela produtividade, mas são muito bem vindos trabalhos em C, C++, Java
-ou qualquer outra linguagem.
+<h3>Um breve exemplo</h3>
+Para facilitar o entendimento, fizemos um log simples para
+<em>peers</em> igual a 2 usando as máquinas do PET de Computação, os mesmos
+foram usados para o verdadeiro log que pode ser acessado <a HREF="log.txt">AQUI</a>.
+<p>
 
-<P>
-<h3>ENTREGA DO TRABALHO<h3>
-<h3>Deve ser construída uma página Web, que contém em documentos HTML, os
-seguintes itens:</h3>
-
-<OL>
-<li> <bf>Relatório</bf> de como foi feito o trabalho e quais foram os
-resultados obtidos. Use desenhos, diagramas, figuras, todos os recursos
-que permitam ao professor compreender como a dupla estruturou o trabalho
-e quais resultados obteve. O objetivo é o professor entender como a dupla 
-fez o trabalho, como o trabalho funciona.
-
-<li> <bf>Código Fonte</bf> comentado. <font color=red>ATENÇÃO:</font> acrescente
-a todo programa a terminação ".txt" para que possa ser diretamente aberto em um 
-browser. Exemplos: cliente.py.txt ou servidor.c.txt
-
-<li> <bf>Logs</bf> de execução dos processos cliente/servidores, que demonstrem a
-execução correta destes processos. Os testes devem ser exaustivos até o ponto
-que demonstrem com clareza a funcionalidade correta do sistema.
-</OL>
-
-<h4>Observações:</h4>
-
-<UL>
-<li> Não serão aceitos trabalhos impressos, nem em meio ótico/magnético.
-
-<li> Como neste semestre a turma não está grande, todos os trabalhos serão 
-defendidos no laboratório, portanto
-certifique-se que seu trabalho funciona aqui.
-
-<li> Pode ser usada qualquer linguagem de programação. A diversidade é bem
-vinda!
-</UL>
-
+<div class="div-em-colunas">
+No log do <em>peer</em> 0 temos: <br>
 <br>
+####################################################################### <br>
+ Programa iniciado em - Mon Jun  5 19:39:15 2017<br>
+ <br>
+ DEFINIDO - frequencia dos heartbeats eh 2 segundos<br>
+ <br>
+ DEFINIDO - Timeout eh 5 segundos<br>
+ <br>
+-Lendo o arquivo 'entrada' para obter os IPs e IDs de todas as maquinas<br><br>
+ As informacoes sao:<br>
+	-Numero de peers: 2<br>
+	-IP: 192.168.0.7 com ID: 0<br>
+	-IP: 192.168.0.8 com ID: 1<br>
+ <br>
+ Estamos na maquina com IP: 192.168.0.7<br>
+ <br>
+-Abri o socket<br>
+ <br>
+-Peer comecou a ouvir<br>
+ <br>
+-Esperando as outras maquinas conectarem<br>
+ <br>
+-Nao existe um lider ainda<br>
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8<br>
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8<br>
+ <br>
+-TODOS CONECTARAM<br>
+ <br>
+-ID dos peers online: ['0', '1']<br>
+ <br>
+-Escolhendo o primeiro lider<br>
+ <br>
+-Preciso avisar os outros que mudou o lider. URGENTE!<br>
+	 Enviando mensagens urgentes<br>
+ <br>
+-Eu sou o novo lider, com ID 0<br>
+ <br>
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8<br>
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8<br>
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8<br>
+ Peer com ID 1 vivo! Recebi uma mensagem do IP 192.168.0.8<br>
+
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+ <br>
+
+No log do <em>peer</em> 1 temos: <br>
 <br>
-<HR>
-<CENTER>
-<P>
-<font face="futura" size=3 color=blue>
-<a HREF="http://www.inf.ufpr.br/elias">Prof. Elias P. Duarte Jr.</a> 
-&nbsp
-&nbsp
-<a HREF="http://www.inf.ufpr.br/">Departamento de Informática</A>
-&nbsp
-&nbsp
-<a HREF="http://www.ufpr.br/">UFPR</A> 
-</font>
-</CENTER>
-<HR>
+#######################################################################<br>
+ Programa iniciado em - Mon Jun  5 19:39:14 2017<br>
+<br>
+ DEFINIDO - frequencia dos heartbeats eh 2 segundos<br>
+<br>
+ DEFINIDO - Timeout eh 5 segundos<br>
+<br>
+-Lendo o arquivo 'entrada' para obter os IPs e IDs de todas as maquinas<br>
+ As informacoes sao:<br>
+	-Numero de peers: 2<br>
+	-IP: 192.168.0.7 com ID: 0<br>
+	-IP: 192.168.0.8 com ID: 1<br>
+<br>
+ Estamos na maquina com IP: 192.168.0.8<br>
+<br>
+-Abri o socket<br>
+<br>
+-Peer comecou a ouvir<br>
+<br>
+-Esperando as outras maquinas conectarem<br>
+<br>
+-Nao existe um lider ainda<br>
+ Peer com ID 0 vivo! Recebi uma mensagem do IP 192.168.0.7<br>
+<br>
+-TODOS CONECTARAM<br>
+<br>
+-ID dos peers online: ['0', '1']<br>
+<br>
+-Escolhendo o primeiro lider<br>
+<br>
+-Preciso avisar os outros que mudou o lider. URGENTE!<br>
+	 Enviando mensagens urgentes<br>
+<br>
+-O novo lider possui ID 0<br>
+<br>
+ Peer com ID 0 vivo! Recebi uma mensagem do IP 192.168.0.7<br>
+ Peer com ID 0 vivo! Recebi uma mensagem do IP 192.168.0.7<br>
+ Peer com ID 0 vivo! Recebi uma mensagem do IP 192.168.0.7<br>
+ Peer com ID 0 vivo! Recebi uma mensagem do IP 192.168.0.7<br>
+<br>
+-TIMEOUT! Algo estah errado<br>
+	 O lider desconectou, precisamos eleger um novo lider<br>
+	 Continuam online os peers com id: ['1']<br>
+<br>
+-Preciso avisar os outros que mudou o lider. URGENTE!<br>
+	 Enviando mensagens urgentes<br>
+<br>
+-Eu sou o novo lider, com ID 1<br>
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
 </BODY>
 </HTML>
-
