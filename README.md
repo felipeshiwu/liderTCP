@@ -13,9 +13,13 @@ Firstly, it is necessary to create the 'entry' file in the same directory as the
 Example: 
 
 > 4
+>
 > 0 192.168.0.6
+>
 > 1 192.168.0.7
+>
 > 2 192.168.0.8
+>
 > 3 192.168.0.9
 
 *É importante lembrar que a relação dos IDs com os IPs deve ser respeitado durante todo o processo e deve ser utilizado o mesmo arquivo 'entrada' para todas as máquinas.
