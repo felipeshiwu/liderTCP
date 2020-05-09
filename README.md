@@ -1,26 +1,22 @@
 # liderTCP
 
-Trabalho implementado em Python com uso de threads para eleger um lider entre várias máquinas conectadas, cada uma manda heartbeat a cada período de tempo e é elegído um novo líder sempre que o líder atual é desconectado. O líder é elegido baseado no menor ID.
+Work implemented in Python using threads to elect a leader among several connected machines, each sends a heartbeat every period of time and a new leader is chosen whenever the current leader is disconnected. The leader is chosen based on the lowest ID.
 
-Requisitos do sistema
+System requirements
 
-Em primeiro momento é necessário que seja criado o arquivo 'entrada' no mesmo diretório que o código e contendo as informações necessárias para que o sistema possa realizar as devidas conexões. Como a leitura do arquivo é feita linha por linha, as informações precisam estar com a seguinte estrutura:
+Firstly, it is necessary to create the 'entry' file in the same directory as the code and containing the necessary information so that the system can make the necessary connections. As the file is read line by line, the information must be in the following structure:
 
-1ª linha, contém o número de peers.
+1st line, contains the number of peers.
 
-2ª linha em diante contém o ID seguido do IP das máquinas, sempre uma máquina por linha.
+2nd line onwards contains the ID followed by the IP of the machines, always one machine per line
 
-Exempo: 
+Example: 
 
-4
-
-0 192.168.0.6
-
-1 192.168.0.7
-
-2 192.168.0.8
-
-3 192.168.0.9
+> 4
+> 0 192.168.0.6
+> 1 192.168.0.7
+> 2 192.168.0.8
+> 3 192.168.0.9
 
 *É importante lembrar que a relação dos IDs com os IPs deve ser respeitado durante todo o processo e deve ser utilizado o mesmo arquivo 'entrada' para todas as máquinas.
 
